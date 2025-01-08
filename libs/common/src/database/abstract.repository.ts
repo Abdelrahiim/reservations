@@ -81,7 +81,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
    * @param filterQuery the query to filter the documents
    * @returns true if the document was deleted, false otherwise
    */
-  async findoneAndDelete(
+  async findOneAndDelete(
     filterQuery: FilterQuery<TDocument>,
   ): Promise<boolean> {
     const deletedDocument = await this.model
