@@ -20,6 +20,21 @@ services:
       - .:/usr/src/app
     depends_on:
       - database
+
+  auth:
+    build: 
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: "npm run start:dev auth"
+    ports:
+      - "3001:3001"
+    restart: always
+    container_name: auth_service
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - database
     
     
     
