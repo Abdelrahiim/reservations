@@ -1,5 +1,5 @@
 import { AbstractRepository, UserDocument } from '@app/common';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -14,9 +14,9 @@ export class UsersRepository extends AbstractRepository<UserDocument> {
     super(model);
   }
 
-	async findEmailExists(email: string) {
-		console.log("🚀 ~ UsersRepository ~ findEmailExists ~ email:", email)
-		const user = await this.model.findOne({ email });
-		return !!user;
-	}
+  async findEmailExists(email: string) {
+    console.log('🚀 ~ UsersRepository ~ findEmailExists ~ email:', email);
+    const user = await this.model.findOne({ email });
+    return !!user;
+  }
 }

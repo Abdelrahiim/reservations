@@ -11,7 +11,7 @@ import { UsersRepository } from './users.repository';
         name: UserDocument.name,
         schema: UserSchema,
       },
-    ])
+    ]),
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],

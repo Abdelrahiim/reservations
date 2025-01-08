@@ -15,7 +15,7 @@ import { LoggerModule } from '@app/common';
     DatabaseModule.forFeature([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]), // to get specific model,
-    LoggerModule
+    LoggerModule,
   ],
   controllers: [ReservationController],
   providers: [ReservationService, ReservationRepository],

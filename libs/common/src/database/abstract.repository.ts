@@ -4,7 +4,7 @@ import { Logger, NotFoundException } from '@nestjs/common';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   protected abstract readonly logger: Logger;
-	
+
   constructor(protected readonly model: Model<TDocument>) {}
 
   /**
@@ -51,7 +51,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     }
     return documents;
   }
-	
+
   /**
    * Find a single document that matches the given filterQuery and update it.
    * If no document matches, throw a NotFoundException.
