@@ -25,7 +25,6 @@ export class AuthService {
    * @returns An object containing the user data.
    */
   public async login(user: UserDocument, res: Response) {
-    console.log(user);
     const {
       accessToken,
       refreshToken,

@@ -12,7 +12,7 @@ import { UserDocument } from '@app/common';
 import { Response } from 'express';
 import { LocalAuthGuard, JwtRefreshGuard } from './guards';
 
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
