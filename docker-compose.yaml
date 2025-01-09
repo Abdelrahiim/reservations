@@ -2,39 +2,48 @@ services:
   database:
     image: mongo
     ports:
-      - "27017:27017"
+      - '27017:27017'
     restart: always
     container_name: reservation_app_database
+  
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    restart: always
+    container_name: reservation_app_redis
 
   reservations:
-    build: 
+    build:
       context: .
       dockerfile: ./apps/reservation/Dockerfile
       target: development
-    command: "npm run start:dev reservation"
+    command: 'npm run start:dev reservation'
     ports:
-      - "3000:3000"
+      - '3000:3000'
     restart: always
+    env_file:
+      - ./apps/reservation/.env
     container_name: reservation_service
     volumes:
       - .:/usr/src/app
     depends_on:
       - database
-
+      - redis
   auth:
-    build: 
+    build:
       context: .
       dockerfile: ./apps/auth/Dockerfile
       target: development
-    command: "npm run start:dev auth"
+    command: 'npm run start:dev auth'
     ports:
-      - "3001:3001"
+      - '3001:3001'
     restart: always
+    env_file:
+      - ./apps/auth/.env
     container_name: auth_service
     volumes:
       - .:/usr/src/app
     depends_on:
       - database
-    
-    
-    
+      - redis

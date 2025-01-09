@@ -3,9 +3,31 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule, LoggerModule } from '@app/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
 
 @Module({
-  imports: [UsersModule, DatabaseModule, LoggerModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        MONGODB_URI: Joi.string().required(),
+        JWT_ACCESS_TOKEN_SECRET_KEY: Joi.string().required(),
+        JWT_ACCESS_TOKEN_EXPIRATION: Joi.string().required(),
+        JWT_REFRESH_TOKEN_SECRET_KEY: Joi.string().required(),
+        JWT_REFRESH_TOKEN_EXPIRATION: Joi.string().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
+        REDIS_PASSWORD: Joi.string().required(),
+        PORT: Joi.number().required(),
+      }),
+    }),
+    UsersModule,
+    DatabaseModule,
+    LoggerModule,
+    JwtModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService],
 })
