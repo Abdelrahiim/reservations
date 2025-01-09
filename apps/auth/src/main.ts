@@ -32,8 +32,6 @@ async function bootstrap() {
   // Use cookie parser
   app.use(cookieParser());
 
-  
-
   app.startAllMicroservices();
   // Start the application
   await app.listen(configService.get('HTTP_PORT'));

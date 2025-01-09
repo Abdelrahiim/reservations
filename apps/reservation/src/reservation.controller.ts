@@ -17,7 +17,6 @@ import { AuthGuard } from '@app/common';
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
-  
   @Post()
   public async create(@Body() createReservationDto: CreateReservationDto) {
     return this.reservationService.create(createReservationDto);
