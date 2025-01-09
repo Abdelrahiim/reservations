@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { RedisService } from './redis.service';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
-import { REDIS_CLIENT } from './redis-client.constant';
+import { REDIS_CLIENT } from '../constants/redis-client';
 
 @Global()
 @Module({

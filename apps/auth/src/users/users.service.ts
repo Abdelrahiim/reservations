@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersRepository } from './users.repository';
@@ -21,7 +22,7 @@ export class UsersService {
     const { email, password } = createUserDto;
 
     if (await this.usersRepository.findEmailExists(email)) {
-      throw new BadRequestException('Email already exists');
+      throw new UnprocessableEntityException('Email already exists');
     }
     const hashPassword = await becrypt.hash(password, 10);
 

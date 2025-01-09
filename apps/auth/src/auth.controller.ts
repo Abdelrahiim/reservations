@@ -7,12 +7,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CurrentUser } from './decorators';
+import { CurrentUser } from '@app/common';
 import { UserDocument } from '@app/common';
 import { Response } from 'express';
-import { LocalAuthGuard, JwtRefreshGuard } from './guards';
+import { LocalAuthGuard, JwtRefreshGuard, JwtAuthGuard } from './guards';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -33,5 +34,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.login(user, res);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @MessagePattern("authenticate")
+  async authenticate(@Payload() payload: { Authorization: string ,user: UserDocument }) {
+    return payload.user;
   }
 }
