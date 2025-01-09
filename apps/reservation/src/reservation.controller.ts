@@ -11,38 +11,47 @@ import {
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { AuthGuard } from '@app/common';
+import { AuthGuard, CurrentUser, UserDto } from '@app/common';
 
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  public async create(@Body() createReservationDto: CreateReservationDto) {
-    return this.reservationService.create(createReservationDto);
+  public async create(
+    @Body() createReservationDto: CreateReservationDto,
+    @CurrentUser() user: UserDto,
+  ) {
+    console.log('🚀 ~ ReservationController ~ user:', user);
+    return this.reservationService.create(createReservationDto, user);
   }
 
   @UseGuards(AuthGuard)
   @Get()
-  public async findAll() {
-    return this.reservationService.findAll();
+  public async findAll(@CurrentUser() user: UserDto) {
+    return this.reservationService.findAll(user);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  public async findOne(@Param('id') id: string) {
-    return this.reservationService.findOne(id);
+  public async findOne(@Param('id') id: string, @CurrentUser() user: UserDto) {
+    return this.reservationService.findOne(id, user);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   public async update(
     @Param('id') id: string,
     @Body() updateReservationDto: UpdateReservationDto,
+    @CurrentUser() user: UserDto,
   ) {
-    return this.reservationService.update(id, updateReservationDto);
+    return this.reservationService.update(id, updateReservationDto, user);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  public async remove(@Param('id') id: string) {
-    return this.reservationService.remove(id);
+  public async remove(@Param('id') id: string, @CurrentUser() user: UserDto) {
+    return this.reservationService.remove(id, user);
   }
 }
