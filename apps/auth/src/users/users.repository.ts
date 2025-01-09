@@ -15,7 +15,6 @@ export class UsersRepository extends AbstractRepository<UserDocument> {
   }
 
   async findEmailExists(email: string) {
-    console.log('🚀 ~ UsersRepository ~ findEmailExists ~ email:', email);
     const user = await this.model.findOne({ email });
     return !!user;
   }
