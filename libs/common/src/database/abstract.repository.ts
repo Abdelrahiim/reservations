@@ -25,6 +25,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
    * If no document matches, throw a NotFoundException.
    * @param filterQuery the query to filter the documents
    * @returns the found document
+   * @throws {NotFoundException} if no document matches
    */
   async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
     const document = await this.model
@@ -42,6 +43,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
    * If no documents match, throw a NotFoundException.
    * @param filterQuery the query to filter the documents
    * @returns the found documents
+   * @throws {NotFoundException} if no documents match
    */
   async find(filterQuery: FilterQuery<TDocument>) {
     const documents = await this.model.find(filterQuery).lean<TDocument>(true);
@@ -58,6 +60,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
    * @param filterQuery the query to filter the documents
    * @param update the properties to update
    * @returns the updated document
+   * @throws {NotFoundException} if no document matches
    */
   async findOneAndUpdate(
     filterQuery: FilterQuery<TDocument>,
@@ -80,6 +83,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
    * If no document matches, throw a NotFoundException.
    * @param filterQuery the query to filter the documents
    * @returns true if the document was deleted, false otherwise
+   * @throws {NotFoundException} if no document matches
    */
   async findOneAndDelete(
     filterQuery: FilterQuery<TDocument>,
