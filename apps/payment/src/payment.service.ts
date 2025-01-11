@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { CreateChargeDto } from './dto/create_charge.dto';
+import { CreateChargeDto } from '@app/common';
 
 @Injectable()
 export class PaymentService {
@@ -15,26 +15,59 @@ export class PaymentService {
   constructor(private readonly configService: ConfigService) {}
 
   /**
-   * Creates a charge using the provided card details and amount.
-   * @param {Stripe.PaymentMethodCreateParams.Card} card - The card details for the payment method.
-   * @param {number} amount - The amount to be charged in USD.
-   * @returns {Promise<Stripe.PaymentIntent>} - The created payment intent.
+   * IMPORTANT: Current Implementation Issues & Solutions
+   *
+   * Problem:
+   * Direct card processing requires client-side tokenization using Stripe.js or Elements.
+   * The current implementation needs a frontend implementation to:
+   * 1. Collect card details securely using Stripe Elements
+   * 2. Create a payment method token before sending to this service
+   *
+   * Frontend Implementation Needed:
+   * ```javascript
+   * // 1. Initialize Stripe.js
+   * const stripe = Stripe('your_publishable_key');
+   *
+   * // 2. Create Elements instance
+   * const elements = stripe.elements();
+   * const card = elements.create('card');
+   * card.mount('#card-element');
+   *
+   * // 3. Handle form submission
+   * const { paymentMethod } = await stripe.createPaymentMethod({
+   *   type: 'card',
+   *   card: card,
+   * });
+   *
+   * // 4. Send paymentMethod.id to this service
+   * ```
+   *
+   * Test Tokens (for development only):
+   * - pm_card_visa: Valid Visa card
+   * - pm_card_visa_debit: Visa debit card
+   * - pm_card_mastercard: Valid Mastercard
+   * - pm_card_declined: Will trigger a decline
+   *
+   * Example usage with test token:
+   * ```typescript
+   * await paymentService.createCharge({
+   *   token: 'pm_card_visa',
+   *   amount: 2000 // $20.00
+   * });
+   * ```
    */
-  public async createCharege({
-    card,
+  public async createCharge({
+    token,
     amount,
   }: CreateChargeDto): Promise<Stripe.PaymentIntent> {
-    const paymentMethod = await this.stripe.paymentMethods.create({
-      type: 'card',
-      card,
-    });
     const paymentIntent = await this.stripe.paymentIntents.create({
-      payment_method: paymentMethod.id,
       amount: amount * 100,
       currency: 'usd',
-      confirmation_method: 'manual',
+      confirm: true,
+      payment_method: token,
       payment_method_types: ['card'],
     });
+
     return paymentIntent;
   }
 }
