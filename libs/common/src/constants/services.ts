@@ -1,1 +1,4 @@
-export const AUTH_SERVICE = 'AUTH_SERVICE';
+export enum Services {
+  AUTH = 'AUTH_SERVICE',
+  PAYMENT = 'PAYMENT_SERVICE',
+}

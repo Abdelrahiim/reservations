@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { catchError, map, Observable, tap } from 'rxjs';
 import { Request } from 'express';
-import { AUTH_SERVICE } from '../constants';
+import { Services } from '../constants';
 import { ClientProxy } from '@nestjs/microservices';
+import { Messages } from '../constants';
 
 /**
  * AuthGuard is responsible for authenticating requests through different services.
@@ -26,7 +27,7 @@ import { ClientProxy } from '@nestjs/microservices';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    @Inject(AUTH_SERVICE) private readonly clientProxy: ClientProxy,
+    @Inject(Services.AUTH) private readonly clientProxy: ClientProxy,
   ) {}
 
   canActivate(
@@ -38,7 +39,7 @@ export class AuthGuard implements CanActivate {
       return false;
     }
     return this.clientProxy
-      .send('authenticate', {
+      .send(Messages.AUTHENTICATE, {
         Authorization: jwt,
       })
       .pipe(
