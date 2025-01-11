@@ -46,7 +46,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
    * @throws {NotFoundException} if no documents match
    */
   async find(filterQuery: FilterQuery<TDocument>) {
-    const documents = await this.model.find(filterQuery).lean<TDocument>(true);
+    const documents = await this.model.find(filterQuery).lean<TDocument[]>(true);
     if (!documents) {
       this.logger.warn('Document not found with filterQuery', filterQuery);
       throw new NotFoundException('Document not found');
