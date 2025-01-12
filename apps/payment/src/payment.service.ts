@@ -4,7 +4,6 @@ import Stripe from 'stripe';
 import { Events, Services } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PaymentsCreateChargeDto } from './dto/payment_create_charge.dto';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PaymentService {
