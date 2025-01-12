@@ -34,8 +34,8 @@ export class ReservationService {
     return this.paymentService
       .send<
         Stripe.PaymentIntent,
-        CreateChargeDto
-      >(Messages.CREATE_CHARGE, createReservationDto.charge)
+        CreateChargeDto & { email: string }
+      >(Messages.CREATE_CHARGE, { ...createReservationDto.charge, email: user.email })
       .pipe(
         catchError((err) => {
           console.log(err);

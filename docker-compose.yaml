@@ -70,6 +70,18 @@ services:
     container_name: payment_service
     volumes:
       - .:/usr/src/app
-    depends_on:
-      - database
-      - redis
+
+  notifications:
+    build:
+      context: .
+      dockerfile: ./apps/notifications/Dockerfile
+      target: development
+    command: 'pnpm run start:dev notifications'
+    restart: always
+    env_file:
+      - ./apps/notifications/.env
+    container_name: notifications_service
+    volumes:
+      - .:/usr/src/app
+
+  
