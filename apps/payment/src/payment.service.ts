@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { Events, Services } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PaymentsCreateChargeDto } from './dto/payment_create_charge.dto';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PaymentService {
@@ -76,7 +77,10 @@ export class PaymentService {
     });
 
     // Notify user of successful payment
-    this.notificationService.emit(Events.NOTIFICATION_EMAIL, { email });
+    this.notificationService.emit(Events.NOTIFICATION_EMAIL, {
+      email,
+      text: `Your Payment of ${amount}  has been processed successfully`,
+    });
 
     return paymentIntent;
   }
