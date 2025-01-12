@@ -4,6 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
+// import { startInstrumentation } from './instrumentation';
+
+// startInstrumentation();
 
 async function bootstrap() {
   const app = await NestFactory.create(ReservationModule);
