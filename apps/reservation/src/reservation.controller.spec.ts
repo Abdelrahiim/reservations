@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';
 import { ReservationRepository } from './reservation.repository';
+import { Services } from '@app/common';
 
 describe('ReservationController', () => {
   let controller: ReservationController;
@@ -24,10 +25,22 @@ describe('ReservationController', () => {
           provide: ReservationRepository,
           useValue: {
             create: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
             findOneAndUpdate: jest.fn(),
             findOneAndDelete: jest.fn(),
-            findOne: jest.fn(),
-            find: jest.fn(),
+          },
+        },
+        {
+          provide: Services.AUTH,
+          useValue: {
+            send: jest.fn(),
+          },
+        },
+        {
+          provide: Services.PAYMENT,
+          useValue: {
+            send: jest.fn(),
           },
         },
       ],

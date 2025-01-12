@@ -8,7 +8,14 @@ describe('NotificationsController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [NotificationsController],
-      providers: [NotificationsService],
+      providers: [
+        {
+          provide: NotificationsService,
+          useValue: {
+            sendEmail: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     notificationsController = app.get<NotificationsController>(
