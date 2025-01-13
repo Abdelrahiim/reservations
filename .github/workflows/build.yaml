@@ -15,6 +15,9 @@ env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
+permissions:
+  contents: write
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
