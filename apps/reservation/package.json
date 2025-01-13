@@ -1,0 +1,9 @@
+{
+    "name": "@reservation-app/reservation",
+    "version": "1.0.0",
+    "description": "Reservation service",
+    "private": true,
+    "dependencies": {
+        "stripe": "^17.5.0"
+    }
+}

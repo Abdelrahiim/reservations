@@ -1,0 +1,9 @@
+{
+    "name": "@reservation-app/payment",
+    "version": "1.0.0",
+    "description": "Payment service",
+    "private": true,
+    "dependencies": {
+        "stripe": "^17.5.0"
+    }
+}

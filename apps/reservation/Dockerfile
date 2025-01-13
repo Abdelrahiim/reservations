@@ -4,14 +4,21 @@ FROM  node:alpine as development
 
 WORKDIR /usr/src/app
 
+COPY pnpm-workspace.yaml ./
+
 COPY package.json ./
 COPY pnpm-lock.yaml ./
+COPY tsconfig.json ./
+COPY nest-cli.json ./
 
+
+COPY apps/reservation apps/reservation
+COPY libs libs
+
+# Install pnpm and enable workspace feature
 RUN npm install -g pnpm
-
-RUN pnpm install
-
-COPY . .
+RUN pnpm config set auto-install-peers true
+RUN pnpm install -r
 
 RUN pnpm run build reservation
 
@@ -23,6 +30,8 @@ ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
+
+COPY pnpm-workspace.yaml ./
 
 COPY package.json ./
 COPY pnpm-lock.yaml ./

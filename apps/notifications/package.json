@@ -1,0 +1,12 @@
+{
+    "name": "@reservation-app/notifications",
+    "version": "1.0.0",
+    "description": "Notifications service",
+    "private": true,
+    "dependencies": {
+        "nodemailer": "^6.9.16"
+    },
+    "devDependencies": {
+        "@types/nodemailer": "^6.4.17"
+    }
+}

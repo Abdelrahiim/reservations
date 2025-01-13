@@ -1,87 +1,33 @@
+version: '3'
 services:
-  database:
-    image: mongo
-    ports:
-      - '27017:27017'
-    restart: always
-    container_name: main_database
-
-  redis:
-    image: redis
-    restart: always
-    container_name: redis
-
-  redis-commander:
-    image: rediscommander/redis-commander
-    restart: always
-    ports:
-      - '8081:8081'
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    container_name: redis_commander
-    depends_on:
-      - redis
-
-  reservations:
-    build:
-      context: .
-      dockerfile: ./apps/reservation/Dockerfile
-      target: development
-    command: 'pnpm run start:dev reservation'
-    ports:
-      - '3000:3000'
-    restart: always
-    env_file:
-      - ./apps/reservation/.env
-    container_name: reservation_service
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - database
-      - redis
-
   auth:
+    image: ghcr.io/${GITHUB_REPOSITORY}/auth:${VERSION:-latest}
     build:
       context: .
       dockerfile: ./apps/auth/Dockerfile
-      target: development
-    command: 'pnpm run start:dev auth'
-    ports:
-      - '3001:3001'
-    restart: always
     env_file:
-      - ./apps/auth/.env
-    container_name: auth_service
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - database
-      - redis
+      - .env
+
+  reservation:
+    image: ghcr.io/${GITHUB_REPOSITORY}/reservation:${VERSION:-latest}
+    build:
+      context: .
+      dockerfile: ./apps/reservation/Dockerfile
+    env_file:
+      - .env
 
   payment:
+    image: ghcr.io/${GITHUB_REPOSITORY}/payment:${VERSION:-latest}
     build:
       context: .
       dockerfile: ./apps/payment/Dockerfile
-      target: development
-    command: 'pnpm run start:dev payment'
-    restart: always
     env_file:
-      - ./apps/payment/.env
-    container_name: payment_service
-    volumes:
-      - .:/usr/src/app
+      - .env
 
   notifications:
+    image: ghcr.io/${GITHUB_REPOSITORY}/notifications:${VERSION:-latest}
     build:
       context: .
       dockerfile: ./apps/notifications/Dockerfile
-      target: development
-    command: 'pnpm run start:dev notifications'
-    restart: always
     env_file:
-      - ./apps/notifications/.env
-    container_name: notifications_service
-    volumes:
-      - .:/usr/src/app
-
-  
+      - .env

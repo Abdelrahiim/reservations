@@ -5,7 +5,6 @@ import {
   Inject,
 } from '@nestjs/common';
 import { catchError, map, Observable, tap } from 'rxjs';
-import { Request } from 'express';
 import { Services } from '../constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { Messages } from '../constants';
@@ -33,7 +32,7 @@ export class AuthGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest();
     const jwt = request.cookies['Authorization'];
     if (!jwt) {
       return false;
