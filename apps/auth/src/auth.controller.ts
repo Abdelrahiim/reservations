@@ -14,7 +14,7 @@ import { LocalAuthGuard, JwtRefreshGuard, JwtAuthGuard } from './guards';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Messages } from '@app/common';
 
-@Controller("auth")
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
