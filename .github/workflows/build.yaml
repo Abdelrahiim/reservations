@@ -25,16 +25,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: "main"
 
-      - name: Set version tag
-        id: version
+      # Bump Version in package.json and tag commit with new version
+      - name:  'Automated Version Bump'
+        uses:  'sherifalaa55/gh-action-bump-version@master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version-type:  ${{ github.event.inputs.versionType }}
+
+      - name: Echo version
         run: |
-          VERSION_TYPE=${{ github.event.inputs.versionType }}
-          if [[ -z "$VERSION_TYPE" ]]; then
-            echo "VERSION=patch" >> $GITHUB_ENV
-          else
-            echo "VERSION=$VERSION_TYPE" >> $GITHUB_ENV
-          fi
+          echo "Version: ${{ github.event.inputs.versionType }}"
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -48,7 +53,7 @@ jobs:
           file: ./apps/auth/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ github.event.inputs.versionType }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:latest
 
       - name: Build and push Reservation service
@@ -58,7 +63,7 @@ jobs:
           file: ./apps/reservation/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ github.event.inputs.versionType }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:latest
 
       - name: Build and push Payment service
@@ -68,7 +73,7 @@ jobs:
           file: ./apps/payment/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ github.event.inputs.versionType }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:latest
 
       - name: Build and push Notifications service
@@ -78,7 +83,7 @@ jobs:
           file: ./apps/notifications/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ github.event.inputs.versionType }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:latest
 
       - name: Create Release Summary
@@ -86,10 +91,10 @@ jobs:
         run: |
           echo "## Docker Images" >> $GITHUB_STEP_SUMMARY
           echo "The following images have been built and pushed:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
 
   deploy-uat:
     runs-on: ubuntu-latest
