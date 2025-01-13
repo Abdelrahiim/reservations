@@ -13,7 +13,7 @@ import { CurrentUser } from '@app/common';
 import { UserDocument } from '@app/common';
 import { JwtAuthGuard } from '../guards';
 
-@Controller('users')
+@Controller('auth/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
