@@ -48,8 +48,8 @@ jobs:
           file: ./apps/auth/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:latest
+            username/auth::${{ github.event.inputs.version }}
+            username/auth:latest
 
       - name: Build and push Reservation service
         uses: docker/build-push-action@v5
@@ -58,8 +58,8 @@ jobs:
           file: ./apps/reservation/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:latest
+            username/reservation:${{ github.event.inputs.version }}
+            username/reservation:latest
 
       - name: Build and push Payment service
         uses: docker/build-push-action@v5
@@ -68,8 +68,8 @@ jobs:
           file: ./apps/payment/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:latest
+            username/payment:${{ github.event.inputs.version }}
+            username/payment:latest
 
       - name: Build and push Notifications service
         uses: docker/build-push-action@v5
@@ -78,18 +78,18 @@ jobs:
           file: ./apps/notifications/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:latest
+            username/notifications:${{ github.event.inputs.version }}
+            username/notifications:latest
 
       - name: Create Release Summary
         if: github.event_name == 'release'
         run: |
           echo "## Docker Images" >> $GITHUB_STEP_SUMMARY
           echo "The following images have been built and pushed:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
 
   deploy-uat:
     runs-on: ubuntu-latest
