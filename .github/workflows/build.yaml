@@ -1,15 +1,15 @@
 name: Build and Push Production Docker Images
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       versionType:
         type: choice
         description: Select the version to bump (default is 'patch')
-        options: 
-        - major
-        - minor
-        - patch
+        options:
+          - major
+          - minor
+          - patch
 
 env:
   REGISTRY: docker.io
@@ -26,15 +26,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: "main"
+          ref: 'main'
 
       # Bump Version in package.json and tag commit with new version
-      - name:  'Automated Version Bump'
-        uses:  'sherifalaa55/gh-action-bump-version@master'
+      - name: 'Automated Version Bump'
+        uses: 'sherifalaa55/gh-action-bump-version@master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          version-type:  ${{ github.event.inputs.versionType }}
+          version-type: ${{ github.event.inputs.versionType }}
 
       - name: Echo version
         run: |
@@ -107,7 +107,7 @@ jobs:
           echo "Mocking deployment of Reservation Service..."
           echo "Mocking deployment of Payment Service..."
           echo "Mocking deployment of Notifications Service..."
-          
+
       - name: Mock deployment verification
         run: |
           echo "Mock Deployment Status:"
