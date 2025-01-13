@@ -1,14 +1,15 @@
 name: Build and Push Production Docker Images
 
-on:
-  release:
-    types: [published]
+on: 
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version tag for the images'
-        required: true
-        default: 'latest'
+      versionType:
+        type: choice
+        description: Select the version to bump (default is 'patch')
+        options: 
+        - major
+        - minor
+        - patch
 
 env:
   REGISTRY: docker.io
@@ -90,7 +91,7 @@ jobs:
           echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
 
-  deploy:
+  deploy-uat:
     runs-on: ubuntu-latest
     needs: build-and-push
 
