@@ -93,3 +93,14 @@ jobs:
           load: true
           tags: notifications:test
 
+  deploy-uat:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Mock deployment
+        run: |
+          echo "Mocking deployment of Auth Service..."
+          echo "Mocking deployment of Reservation Service..."
+          echo "Mocking deployment of Payment Service..."
+          echo "Mocking deployment of Notifications Service..."
