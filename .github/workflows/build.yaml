@@ -1,22 +1,19 @@
 name: Build and Push Production Docker Images
 
-on:
+on: 
   workflow_dispatch:
     inputs:
       versionType:
         type: choice
         description: Select the version to bump (default is 'patch')
-        options:
-          - major
-          - minor
-          - patch
+        options: 
+        - major
+        - minor
+        - patch
 
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}
-
-permissions:
-  contents: write
 
 jobs:
   build-and-push:
@@ -29,18 +26,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Bump Version in package.json and tag commit with new version
-      - name: 'Automated Version Bump'
-        uses: 'sherifalaa55/gh-action-bump-version@master'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          version-type: ${{ github.event.inputs.versionType }}
-          ref: 'main'
-
-      - name: Echo version
+      - name: Set version tag
+        id: version
         run: |
-          echo "Version: ${{ github.event.inputs.versionType }}"
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          CURRENT_VERSION=${LATEST_TAG#v}
+          VERSION_TYPE=${{ github.event.inputs.versionType }}
+          if [[ -z "$VERSION_TYPE" ]]; then
+            VERSION_TYPE="patch"
+          fi
+          
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          case "$VERSION_TYPE" in
+            "major")
+              NEW_VERSION="$((major + 1)).0.0"
+              ;;
+            "minor")
+              NEW_VERSION="${major}.$((minor + 1)).0"
+              ;;
+            "patch")
+              NEW_VERSION="${major}.${minor}.$((patch + 1))"
+              ;;
+          esac
+          
+          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Generated version: $NEW_VERSION"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -55,7 +66,7 @@ jobs:
           file: ./apps/auth/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ github.event.inputs.versionType }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ env.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:latest
 
       - name: Build and push Reservation service
@@ -65,7 +76,7 @@ jobs:
           file: ./apps/reservation/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ github.event.inputs.versionType }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ env.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:latest
 
       - name: Build and push Payment service
@@ -75,7 +86,7 @@ jobs:
           file: ./apps/payment/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ github.event.inputs.versionType }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:latest
 
       - name: Build and push Notifications service
@@ -85,7 +96,7 @@ jobs:
           file: ./apps/notifications/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ github.event.inputs.versionType }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:latest
 
       - name: Create Release Summary
@@ -93,10 +104,10 @@ jobs:
         run: |
           echo "## Docker Images" >> $GITHUB_STEP_SUMMARY
           echo "The following images have been built and pushed:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ github.event.inputs.versionType }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/reservation:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notifications:${{ env.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
 
   deploy-uat:
     runs-on: ubuntu-latest
@@ -109,7 +120,7 @@ jobs:
           echo "Mocking deployment of Reservation Service..."
           echo "Mocking deployment of Payment Service..."
           echo "Mocking deployment of Notifications Service..."
-
+          
       - name: Mock deployment verification
         run: |
           echo "Mock Deployment Status:"
