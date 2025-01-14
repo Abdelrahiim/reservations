@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -17,6 +18,12 @@ import { Messages } from '@app/common';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('health')
+  @HttpCode(HttpStatus.OK)
+  public health() {
+    return 'ok';
+  }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)

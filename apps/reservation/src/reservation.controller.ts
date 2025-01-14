@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
@@ -16,6 +18,12 @@ import { AuthGuard, CurrentUser, UserDto } from '@app/common';
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
+
+  @Get('health')
+  @HttpCode(HttpStatus.OK)
+  public health() {
+    return 'ok';
+  }
 
   @UseGuards(AuthGuard)
   @Post()
