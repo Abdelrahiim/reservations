@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { ReservationController } from './reservation.controller';
-import { Services, DatabaseModule } from '@app/common';
+import { Services, DatabaseModule, Queues } from '@app/common';
 import {
   ReservationDocument,
   ReservationSchema,
@@ -34,10 +34,10 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       clients: [
         {
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: configService.get('AUTH_SERVICE_HOST'),
-              port: configService.get('AUTH_SERVICE_PORT'),
+              urls: [configService.getOrThrow<string>('RABBITMQ_URL')],
+              queue: Queues.AUTH,
             },
           }),
           name: Services.AUTH,
@@ -45,10 +45,10 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
         {
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: configService.get('PAYMENT_SERVICE_HOST'),
-              port: configService.get('PAYMENT_SERVICE_PORT'),
+              urls: [configService.getOrThrow<string>('RABBITMQ_URL')],
+              queue: Queues.PAYMENT,
             },
           }),
           name: Services.PAYMENT,

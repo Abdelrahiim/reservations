@@ -3,7 +3,7 @@ import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { LoggerModule, Services } from '@app/common';
+import { LoggerModule, Queues, Services } from '@app/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
@@ -30,10 +30,10 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       clients: [
         {
           useFactory: (config: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: config.get('NOTIFICATION_SERVICE_HOST'),
-              port: config.get('NOTIFICATION_SERVICE_PORT'),
+              urls: [config.getOrThrow<string>('RABBITMQ_URL')],
+              queue: Queues.NOTIFICATIONS,
             },
           }),
           name: Services.NOTIFICATIONS,

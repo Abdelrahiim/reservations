@@ -10,7 +10,7 @@ export class NotificationsController {
 
   @EventPattern(Events.NOTIFICATION_EMAIL)
   @UsePipes(new ValidationPipe())
-  async sendNotificationEmail(data: NotifyEmailDto) {
-    return this.notificationsService.sendNotificationEmail(data);
+  public async sendNotificationEmail(data: NotifyEmailDto) {
+    return await this.notificationsService.sendNotificationEmail(data);
   }
 }
