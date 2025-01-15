@@ -4,10 +4,9 @@ import {
   ExecutionContext,
   Inject,
 } from '@nestjs/common';
-import { catchError, map, Observable, tap } from 'rxjs';
-import { Services } from '../constants';
-import { ClientProxy } from '@nestjs/microservices';
-import { Messages } from '../constants';
+import { catchError, map, of, tap } from 'rxjs';
+import { ClientGrpc } from '@nestjs/microservices';
+import { AUTH_SERVICE_NAME, AuthServiceClient } from '../types';
 
 /**
  * AuthGuard is responsible for authenticating requests through different services.
@@ -25,27 +24,32 @@ import { Messages } from '../constants';
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-    @Inject(Services.AUTH) private readonly clientProxy: ClientProxy,
-  ) {}
+  private authService: AuthServiceClient;
+  constructor(@Inject(AUTH_SERVICE_NAME) private readonly client: ClientGrpc) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  onModuleInit() {
+    this.authService =
+      this.client.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
+  }
+
+  canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const jwt = request.cookies['Authorization'];
     if (!jwt) {
       return false;
     }
-    return this.clientProxy
-      .send(Messages.AUTHENTICATE, {
+    return this.authService
+      .authenticate({
         Authorization: jwt,
       })
       .pipe(
         tap((user) => {
-          request.user = user;
+          request.user = {
+            ...user,
+            _id: user.id,
+          };
         }),
-        catchError<boolean, any>(() => false),
+        catchError(() => of(false)),
         map(() => true),
       );
   }

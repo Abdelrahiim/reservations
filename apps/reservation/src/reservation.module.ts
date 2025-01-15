@@ -1,7 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { ReservationController } from './reservation.controller';
-import { Services, DatabaseModule } from '@app/common';
+import {
+  DatabaseModule,
+  AUTH_PACKAGE_NAME,
+  PAYMENT_PACKAGE_NAME,
+  PAYMENT_SERVICE_NAME,
+  AUTH_SERVICE_NAME,
+} from '@app/common';
 import {
   ReservationDocument,
   ReservationSchema,
@@ -11,6 +17,7 @@ import { LoggerModule } from '@app/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -24,34 +31,34 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
         PORT: Joi.number().required(),
-        AUTH_SERVICE_HOST: Joi.string().required(),
-        AUTH_SERVICE_PORT: Joi.number().required(),
-        PAYMENT_SERVICE_HOST: Joi.string().required(),
-        PAYMENT_SERVICE_PORT: Joi.number().required(),
+        AUTH_GRPC_SERVICE_URL: Joi.string().required(),
+        PAYMENT_GRPC_SERVICE_URL: Joi.string().required(),
       }),
     }),
     ClientsModule.registerAsync({
       clients: [
         {
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.get('AUTH_SERVICE_HOST'),
-              port: configService.get('AUTH_SERVICE_PORT'),
+              package: AUTH_PACKAGE_NAME,
+              protoPath: join(__dirname, '../../../proto/auth.proto'),
+              url: configService.get('AUTH_GRPC_SERVICE_URL'),
             },
           }),
-          name: Services.AUTH,
+          name: AUTH_SERVICE_NAME,
           inject: [ConfigService],
         },
         {
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.get('PAYMENT_SERVICE_HOST'),
-              port: configService.get('PAYMENT_SERVICE_PORT'),
+              package: PAYMENT_PACKAGE_NAME,
+              protoPath: join(__dirname, '../../../proto/payment.proto'),
+              url: configService.get('PAYMENT_GRPC_SERVICE_URL'),
             },
           }),
-          name: Services.PAYMENT,
+          name: PAYMENT_SERVICE_NAME,
           inject: [ConfigService],
         },
       ],

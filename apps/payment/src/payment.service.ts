@@ -1,12 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { Events, Services } from '@app/common';
-import { ClientProxy } from '@nestjs/microservices';
+import {
+  NOTIFICATIONS_SERVICE_NAME,
+  NotificationsServiceClient,
+} from '@app/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { PaymentsCreateChargeDto } from './dto/payment_create_charge.dto';
 
 @Injectable()
-export class PaymentService {
+export class PaymentService implements OnModuleInit {
   private readonly stripe = new Stripe(
     this.configService.get<string>('STRIPE_SECRET_KEY'),
     {
@@ -14,11 +17,20 @@ export class PaymentService {
     },
   );
 
+  private notificationService: NotificationsServiceClient;
+
   constructor(
     private readonly configService: ConfigService,
-    @Inject(Services.NOTIFICATIONS)
-    private readonly notificationService: ClientProxy,
+    @Inject(NOTIFICATIONS_SERVICE_NAME)
+    private readonly client: ClientGrpc,
   ) {}
+
+  onModuleInit(): void {
+    this.notificationService =
+      this.client.getService<NotificationsServiceClient>(
+        NOTIFICATIONS_SERVICE_NAME,
+      );
+  }
 
   /**
    * IMPORTANT: Current Implementation Issues & Solutions
@@ -74,12 +86,13 @@ export class PaymentService {
       payment_method: token,
       payment_method_types: ['card'],
     });
-
     // Notify user of successful payment
-    this.notificationService.emit(Events.NOTIFICATION_EMAIL, {
-      email,
-      text: `Your Payment of ${amount}  has been processed successfully`,
-    });
+    this.notificationService
+      .sendNotification({
+        email,
+        text: `Your Payment of ${amount}  has been processed successfully`,
+      })
+      .subscribe();
 
     return paymentIntent;
   }

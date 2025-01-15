@@ -10,8 +10,9 @@ import {
   IsNotEmpty,
   ValidateIf,
 } from 'class-validator';
+import { CreateChargeRequest } from '../types';
 
-export class CreateChargeDto {
+export class CreateChargeDto implements Omit<CreateChargeRequest, 'email'> {
   @ValidateIf((o) => !o.token)
   @IsDefined()
   @IsNotEmptyObject()
@@ -22,7 +23,7 @@ export class CreateChargeDto {
   @ValidateIf((o) => !o.card)
   @IsString()
   @IsNotEmpty()
-  token?: string;
+  token: string;
 
   @IsNumber()
   @Min(0.5)

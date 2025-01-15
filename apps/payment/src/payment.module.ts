@@ -3,8 +3,13 @@ import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { LoggerModule, Services } from '@app/common';
+import {
+  LoggerModule,
+  NOTIFICATIONS_PACKAGE_NAME,
+  NOTIFICATIONS_SERVICE_NAME,
+} from '@app/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -21,8 +26,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         STRIPE_SECRET_KEY: Joi.string().required(),
         STRIPE_PUBLIC_KEY: Joi.string().required(),
 
-        NOTIFICATION_SERVICE_HOST: Joi.string().required(),
-        NOTIFICATION_SERVICE_PORT: Joi.number().required(),
+        NOTIFICATION_GRPC_SERVICE_URL: Joi.string().required(),
       }),
     }),
     LoggerModule,
@@ -30,13 +34,14 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       clients: [
         {
           useFactory: (config: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: config.get('NOTIFICATION_SERVICE_HOST'),
-              port: config.get('NOTIFICATION_SERVICE_PORT'),
+              package: NOTIFICATIONS_PACKAGE_NAME,
+              protoPath: join(__dirname, '../../../proto/notifications.proto'),
+              url: config.get('NOTIFICATION_GRPC_SERVICE_URL'),
             },
           }),
-          name: Services.NOTIFICATIONS,
+          name: NOTIFICATIONS_SERVICE_NAME,
           inject: [ConfigService],
         },
       ],

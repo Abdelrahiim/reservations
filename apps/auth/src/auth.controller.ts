@@ -8,15 +8,20 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CurrentUser, UserDto } from '@app/common';
+import {
+  AuthServiceController,
+  AuthServiceControllerMethods,
+  CurrentUser,
+  UserMessage,
+} from '@app/common';
 import { UserDocument } from '@app/common';
 import { Response } from 'express';
 import { LocalAuthGuard, JwtRefreshGuard, JwtAuthGuard } from './guards';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Messages } from '@app/common';
+import { Observable } from 'rxjs';
 
 @Controller('auth')
-export class AuthController {
+@AuthServiceControllerMethods()
+export class AuthController implements AuthServiceController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('health')
@@ -45,8 +50,13 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @MessagePattern(Messages.AUTHENTICATE)
-  async authenticate(@Payload() payload: { user: UserDto }) {
-    return payload.user;
+  public authenticate(
+    data: any,
+  ): Promise<UserMessage> | Observable<UserMessage> | UserMessage {
+    console.log({ data });
+    return {
+      ...data.user,
+      id: data.user._id,
+    };
   }
 }

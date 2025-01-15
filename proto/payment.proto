@@ -9,7 +9,7 @@ service PaymentService {
 message CreateChargeRequest {
     string token = 1;
     string email = 2;
-    int64 amount = 3;
+    int32 amount = 3;
 }
 
 message CreateChargeResponse {

@@ -20,7 +20,7 @@ import { LocalStrategy, JwtStrategy, JwtRefreshStrategy } from './strategies';
         JWT_REFRESH_TOKEN_EXPIRATION: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
         HTTP_PORT: Joi.number().required(),
-        TCP_PORT: Joi.number().required(),
+        AUTH_GRPC_SERVICE_URL: Joi.string().required(),
       }),
     }),
     RedisModule,

@@ -5,22 +5,30 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ReservationRepository } from './reservation.repository';
-import { CreateChargeDto, Messages, Services, UserDto } from '@app/common';
+import {
+  PAYMENT_SERVICE_NAME,
+  PaymentServiceClient,
+  UserDto,
+} from '@app/common';
 import { CreateReservationDto, UpdateReservationDto } from './dto';
 import { ReservationDocument } from './models/reservation.schema';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, Observable, switchMap } from 'rxjs';
-import Stripe from 'stripe';
 import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class ReservationService {
   private readonly logger = new Logger(ReservationService.name);
+  private paymentService: PaymentServiceClient;
   constructor(
     private readonly reservationRepository: ReservationRepository,
-    @Inject(Services.PAYMENT) private readonly paymentService: ClientProxy,
+    @Inject(PAYMENT_SERVICE_NAME) private readonly client: ClientGrpc,
   ) {}
 
+  onModuleInit() {
+    this.paymentService =
+      this.client.getService<PaymentServiceClient>(PAYMENT_SERVICE_NAME);
+  }
   /**
    * Creates a new reservation.
    * @param createReservationDto - The data transfer object containing reservation details.
@@ -32,20 +40,18 @@ export class ReservationService {
     user: UserDto,
   ): Observable<ReservationDocument> {
     return this.paymentService
-      .send<
-        Stripe.PaymentIntent,
-        CreateChargeDto & { email: string }
-      >(Messages.CREATE_CHARGE, { ...createReservationDto.charge, email: user.email })
+      .createCharge({
+        ...createReservationDto.charge,
+        email: user.email,
+      })
       .pipe(
         catchError((err) => {
-          console.log(err);
           this.logger.error(err);
           throw new UnprocessableEntityException(
             'Some Went wrong with payment',
           );
         }),
         switchMap((res) => {
-          console.log(res);
           return this.reservationRepository.create({
             ...createReservationDto,
             invoiceId: res.id,
