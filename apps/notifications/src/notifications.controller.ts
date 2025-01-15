@@ -4,7 +4,7 @@ import {
   Empty,
   Notification,
   NotificationsServiceController,
-  NotificationsServiceControllerMethods
+  NotificationsServiceControllerMethods,
 } from '@app/common';
 import { Observable } from 'rxjs';
 
