@@ -11,9 +11,10 @@ COPY pnpm-lock.yaml ./
 COPY tsconfig.json ./
 COPY nest-cli.json ./
 
-
+COPY proto proto
 COPY apps/reservation apps/reservation
 COPY libs libs
+
 
 # Install pnpm and enable workspace feature
 RUN npm install -g pnpm
@@ -40,6 +41,7 @@ RUN npm install -g pnpm
 
 RUN pnpm install --prod
 
+COPY proto proto
 COPY --from=development /usr/src/app/dist ./dist
 
 CMD ["node", "dist/apps/reservation/main"]

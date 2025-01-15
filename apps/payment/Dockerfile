@@ -12,6 +12,7 @@ COPY pnpm-lock.yaml ./
 COPY tsconfig.json ./
 COPY nest-cli.json ./
 
+COPY proto proto
 COPY apps/payment apps/payment
 COPY libs libs
 
@@ -38,6 +39,7 @@ RUN npm install -g pnpm
 
 RUN pnpm install --prod
 
+COPY proto proto
 COPY --from=development /usr/src/app/dist ./dist
 
 CMD ["node", "dist/apps/payment/main"]

@@ -15,7 +15,7 @@ COPY nest-cli.json ./
 # Copy source after installing dependencies
 COPY apps/auth apps/auth
 COPY libs libs
-
+COPY proto proto
 # Install pnpm and enable workspace feature
 RUN npm install -g pnpm
 RUN pnpm config set auto-install-peers true
@@ -44,6 +44,7 @@ RUN pnpm config set auto-install-peers true
 RUN pnpm install --prod
 
 # Copy built files
+COPY proto proto
 COPY --from=development /usr/src/app/dist ./dist
 
 CMD ["node", "dist/apps/auth/main"]
